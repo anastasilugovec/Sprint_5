@@ -1,57 +1,44 @@
 import pytest
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from locators import Locators
-import time  # Удалите, если не будете использовать time.sleep
 
 
-@pytest.fixture(scope="session")
-def driver():
-    d = webdriver.Chrome()  # убедитесь, что chromedriver в PATH
-    d.maximize_window()
-    yield d
-    d.quit()
+class TestIngredientsTabs:
 
-
-@pytest.fixture(scope="module")
-def page_url():
-    return "https://stellarburgers.nomoreparties.site/"
-
-
-class TestGoToTheBunsSection:
-
-    def test_sauce_and_buns_scroll(self, driver, page_url):
+    def test_switch_tabs_and_verify_active(self, driver, page_url):
         driver.get(page_url)
 
-        # Проверяем наличие раздела конструктора бургеров
-        constructor_section = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located(Locators.CONSTRUCTOR_SECTION)
+        # Проверка, что по умолчанию активен раздел "Булки" (или другой)
+        active_buns_tab = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(Locators.ACTIVE_BUNS_TAB)
         )
-        assert constructor_section.is_displayed(), "Раздел конструктора бургеров отсутствует"
+        assert active_buns_tab.is_displayed(
+        ), "Активная вкладка 'Булки' не отображается по умолчанию"
 
-        # Нажимаем на кнопку "Соусы"
+        # Проверка наличия элементов в активной вкладке
+        buns_container = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(Locators.BUNS_CONTAINER)
+        )
+        assert buns_container.is_displayed(), "Контейнер с булками не отображается"
+
+        # Переход к разделу "Соусы"
         sauce_tab = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(Locators.SAUCE_TAB)
         )
         sauce_tab.click()
 
-        # Ожидание появления элемента внутри раздела Соусы
+        # Проверка смены активного таба
+        active_sauce_tab = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(Locators.ACTIVE_SAUCE_TAB)
+        )
+        assert active_sauce_tab.is_displayed(), "Таб 'Соусы' не стал активным после клика"
+
+        # Проверка наличия элементов внутри раздела "Соусы"
         spicy_x_sauce = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(Locators.SPICY_X_SAUCE)
         )
-        assert spicy_x_sauce.is_displayed(
-        ), "Элемент внутри раздела Соусы не найден после прокрутки"
+        assert spicy_x_sauce.is_displayed(), "Элемент внутри раздела 'Соусы' не найден"
 
-        # Нажимаем на кнопку "Булки"
-        buns_tab = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable(Locators.BUNS_TAB)
-        )
-        buns_tab.click()
-
-        # Ожидание появления элемента внутри раздела Булки
-        r2d3_bun = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located(Locators.R2D3_BUN)
-        )
-        assert r2d3_bun.is_displayed(), "Элемент внутри раздела Булки не найден после прокрутки"
+        # Аналогично для раздела "Начинки"
+        # Можно повторить для другого раздела, если нужно

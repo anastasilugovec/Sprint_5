@@ -4,20 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from locators import Locators
-import time  # Удалите, если не будете использовать time.sleep
-
-
-@pytest.fixture(scope="session")
-def driver():
-    d = webdriver.Chrome()  # убедитесь, что chromedriver в PATH
-    d.maximize_window()
-    yield d
-    d.quit()
-
-
-@pytest.fixture(scope="module")
-def page_url():
-    return "https://stellarburgers.nomoreparties.site/"
+from conftest import driver
 
 
 class TestGoToTheToppingsSection:
